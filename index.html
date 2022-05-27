@@ -1,0 +1,140 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <script src="https://unpkg.com/three@0.137.4/build/three.min.js"></script>
+    <script src="https://unpkg.com/three@0.137.4/examples/js/controls/OrbitControls.js"></script>
+  </head>
+<body>
+ <script>
+      // ページの読み込みを待つ
+      window.addEventListener('DOMContentLoaded', init);
+
+      function init() {
+        // サイズを指定
+        const width = 800
+        const height = 600;
+
+        // レンダラーを作成
+        var renderer = new THREE.WebGLRenderer();
+        document.body.appendChild(renderer.domElement);
+        renderer.setSize(width, height);
+
+        // レンダラー：シャドウを有効にする
+        renderer.shadowMap.enabled = true;
+
+        // シーンを作成
+        const scene = new THREE.Scene();
+
+        // カメラを作成
+        const camera = new THREE.PerspectiveCamera(45, width / height);
+        // カメラの初期座標を設定
+        camera.position.set(0, 0, 30);
+
+        // カメラコントローラーを作成
+        const controls = new THREE.OrbitControls(camera, document.body); 
+        
+        // 平行光源1
+        var directionalLight1 = new THREE.DirectionalLight(0xffffff);
+        directionalLight1.position.set(10, 10, 10);
+        // シーンに追加
+        scene.add(directionalLight1);
+        // 平行光源2
+        var directionalLight2 = new THREE.DirectionalLight(0x888888);
+        directionalLight2.position.set(-10, -10, 10);
+        // シーンに追加
+        scene.add(directionalLight2);
+
+        // スポットライト光源を作成
+        // new THREE.SpotLight(色, 光の強さ, 距離, 照射角, ボケ具合, 減衰率)
+        const light = new THREE.SpotLight(0xFFFFFF, 1, 10, Math.PI / 4, 10, 0.5);
+        light.castShadow = true;
+        scene.add(light);
+
+        // 矩形光源を作成
+        // new THREE.RectAreaLight(色, 光の強さ, 幅, 高さ)
+        const lightsqr = new THREE.RectAreaLight(0xFFFFFF, 1, 50, 100);
+        lightsqr.castShadow = true;
+        scene.add(lightsqr);
+
+        // helper
+        // const gridHelper = new THREE.GridHelper(2,10); // size, step
+        // scene.add(gridHelper);
+        const axisHelper = new THREE.AxisHelper(5); //軸の長さ　X：赤、Y：緑、z：青
+        scene.add(axisHelper);
+
+        // 床を作成
+        // const meshFloor = new THREE.Mesh(
+        //   new THREE.BoxGeometry(2000, 0.1, 2000),
+        //   new THREE.MeshStandardMaterial({ color: 0x808080, roughness: 0.0 })
+        // );
+        // scene.add(meshFloor);
+        
+        const group3 = new THREE.Group();
+        const group1 = new THREE.Group();
+
+        // 縦球体群
+        const material = new THREE.MeshStandardMaterial();
+        const geometry = new THREE.SphereGeometry(0.3, 30, 30);
+        for (let i = 0; i < 10; i++) {
+          // 直方体を作成
+          const mesh = new THREE.Mesh(geometry, material);
+          mesh.receiveShadow = true;
+          mesh.castShadow = true;
+          // 配置座標を計算
+          const radian = (i / 10) * Math.PI * 2;
+          mesh.position.set(
+            0, // X座標
+            5 * Math.cos(radian), // Y座標
+            5 * Math.sin(radian) // Z座標
+          );
+
+          // グループに追加する
+          group1.add(mesh);
+        }
+        scene.add(group1);
+
+        const group2 = new THREE.Group();
+        // 平面球体群
+        for (let i = 0; i < 10; i++) {
+          // 直方体を作成
+          const mesh = new THREE.Mesh(geometry, material);
+          mesh.receiveShadow = true;
+          mesh.castShadow = true;
+
+          // 配置座標を計算
+          const radian = (i / 10) * Math.PI * 2;
+          mesh.position.set(
+            5 * Math.cos(radian), // X座標
+            0, // Y座標
+            5 * Math.sin(radian) // Z座標
+          );
+
+          // グループに追加する
+          group2.add(mesh);
+        }
+        group3.add(group1);
+        group3.add(group2);
+        group3.position.set(0,0,0);
+        scene.add(group3);
+        update();
+
+        var radian2 = 0;
+        // 毎フレーム時に実行されるループイベントです
+        function update() {
+          // レンダリング
+          renderer.render(scene, camera);
+          requestAnimationFrame(update);
+
+          group1.rotation.x += 0.003;
+          group2.rotation.y += 0.003;
+          group3.rotation.x += 0.003;
+          group3.rotation.y += 0.003;
+          group3.rotation.z += 0.003;
+
+          radian2 += 0.01;
+          group3.position.x = 10 * Math.sin(radian2);
+        }
+      }
+    </script>
+</body>
+</html>
